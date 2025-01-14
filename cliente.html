@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOAP - Hola Mundo</title>
+</head>
+<body>
+  <h1>SOAP - Hola Mundo</h1>
+  <button onclick="callSoapService()">Llamar Servicio SOAP</button>
+  <p id="response"></p>
+
+  <script>
+    // Función para llamar al servicio SOAP
+    function callSoapService() {
+      var xmlhttp = new XMLHttpRequest();
+
+      // URL del servicio SOAP
+      var url = "http://localhost:8000";  // Cambia la URL si tu servidor está en otra ubicación
+
+      // La cabecera de la solicitud SOAP
+      var soapEnvelope = `<?xml version="1.0" encoding="UTF-8"?>
+                          <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                                            xmlns:web="http://example.com/helloworld">
+                             <soapenv:Header/>
+                             <soapenv:Body>
+                                <web:say_hello>
+                                   <name>Mundo</name>
+                                </web:say_hello>
+                             </soapenv:Body>
+                          </soapenv:Envelope>`;
+
+      // Configura la solicitud
+      xmlhttp.open("POST", url, true);
+      xmlhttp.setRequestHeader("Content-Type", "text/xml;charset=UTF-8");
+      xmlhttp.setRequestHeader("SOAPAction", "http://example.com/helloworld/say_hello");
+
+      // Maneja la respuesta del servidor
+      xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+          // Procesamos la respuesta
+          var parser = new DOMParser();
+          var xmlDoc = parser.parseFromString(xmlhttp.responseText, "text/xml");
+
+          // Extraemos el mensaje del cuerpo de la respuesta
+          var responseMessage = xmlDoc.getElementsByTagName("return")[0].childNodes[0].nodeValue;
+          document.getElementById("response").textContent = responseMessage;
+        }
+      };
+
+      // Enviar la solicitud SOAP
+      xmlhttp.send(soapEnvelope);
+    }
+  </script>
+</body>
+</html>
